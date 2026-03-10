@@ -42,7 +42,7 @@ services:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=test_db
     volumes:
-      - ./data/mysql/db:/var/lib/mysql
+      - ./data/mysql/db:/var/lib/mysql_data
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
       interval: 10s
@@ -59,7 +59,7 @@ services:
      - "3100:3100"
     volumes:
      -  ${PWD}:/mnt/config
-     -  ${PWD}/data/loki:/var/lib/loki
+     -  ${PWD}/data/loki:/var/lib/loki_data
     command: -config.file=/mnt/config/loki-config.yaml
     networks:
      - notes-app-nw 
@@ -87,11 +87,61 @@ services:
     networks:
       - notes-app-nw    
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "5090:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /sys:/sys:ro
+      - /var/run:/var/run:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - notes-app-nw
+    restart: always
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    networks:
+      - notes-app-nw
+    restart: always
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ${PWD}/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${PWD}/data/prometheus:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    networks:
+      - notes-app-nw
+    depends_on:
+      - node_exporter
+      - cadvisor
+    restart: unless-stopped
+
 networks:
   notes-app-nw:
 
 volumes:
   mysql_data:
   loki_data:
+  prometheus_data:
 
  
