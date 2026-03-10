@@ -52,5 +52,26 @@ services:
     networks:
       - notes-app-nw
 
+  loki:
+    image: grafana/loki:2.8.0
+    container_name: loki
+    ports: 
+     - "3100:3100"
+    volumes:
+     -  ${PWD}:/mnt/config
+    command: -config.file=/mnt/config/loki-config.yaml
+    networks:
+     - notes-app-nw 
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+    networks:
+      - notes-app-nw      
+
 networks:
   notes-app-nw:
