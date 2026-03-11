@@ -121,6 +121,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    user: "0"
     ports:
       - "9090:9090"
     volumes:
@@ -128,7 +129,6 @@ services:
       - ${PWD}/data/prometheus:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
     networks:
       - notes-app-nw
     depends_on:
