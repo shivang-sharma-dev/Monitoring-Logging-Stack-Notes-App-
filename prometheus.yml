@@ -1,6 +1,7 @@
 global:
-  scrape_interval: 15s          # How often to scrape targets
-  evaluation_interval: 15s      # How often to evaluate alerting rules
+  scrape_interval: 15s            # How often to scrape targets
+  evaluation_interval: 15s        # How often to evaluate alerting rules
+  scrape_timeout: 10s             # Timeout for each scrape request
 
 scrape_configs:
   # Prometheus monitors itself
@@ -17,4 +18,7 @@ scrape_configs:
   - job_name: "cadvisor"
     static_configs:
       - targets: ["cadvisor:8080"]
-
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: "container_(cpu|memory|network|fs)_.*"
+        action: keep                # Only keep relevant container metrics (reduces storage)
