@@ -73,12 +73,17 @@ services:
       - loki
     networks:
       - notes-app-nw  
+    restart: always
+    volumes:
+      - ./data/grafana:/var/lib/grafana
   
   promtail:
     image: grafana/promtail:latest
     container_name: promtail
     volumes:
       - ${PWD}:/mnt/config
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     command: -config.file=/mnt/config/promtail-config.yaml
     ports:
       - "6000:6000"
@@ -143,5 +148,6 @@ volumes:
   mysql_data:
   loki_data:
   prometheus_data:
+  grafana:
 
  
