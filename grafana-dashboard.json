@@ -272,8 +272,8 @@
       "type": "timeseries",
       "targets": [
         {
-          "expr": "sum(rate({job=\"docker\"} | json [1m])) by (stream)",
-          "legendFormat": "{{stream}}"
+          "expr": "sum by (filename) (count_over_time({job=\"docker\"}[1m]))",
+          "legendFormat": "{{filename}}"
         }
       ]
     },
@@ -315,7 +315,7 @@
       },
       "targets": [
         {
-          "expr": "{job=\"docker\"} |= \"error\" or {job=\"docker\"} |= \"ERROR\"",
+          "expr": "{job=\"docker\"} |~ \"(?i)error\"",
           "legendFormat": ""
         }
       ]
