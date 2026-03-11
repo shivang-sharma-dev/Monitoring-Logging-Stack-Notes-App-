@@ -43,7 +43,8 @@ limits_config:
 
 compactor:
   working_directory: /var/lib/loki/compactor
-  retention_enabled: true                 # Auto-delete logs older than retention_period
+  delete_request_store: filesystem         # Required when retention is enabled
+  retention_enabled: true                  # Auto-delete logs older than retention_period
   compaction_interval: 10m
   retention_delete_delay: 2h
 
