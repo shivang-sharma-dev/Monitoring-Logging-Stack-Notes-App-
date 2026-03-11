@@ -59,7 +59,7 @@ services:
      - "3100:3100"
     volumes:
      -  ${PWD}:/mnt/config
-     -  ${PWD}/data/loki:/var/lib/loki_data
+     -  ${PWD}/data/loki:/var/lib/loki
     command: -config.file=/mnt/config/loki-config.yaml
     networks:
      - notes-app-nw 
