@@ -9,13 +9,15 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  # Scrape Docker container logs
   - job_name: docker
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: docker
-          __path__: /var/lib/docker/containers/*/*-json.log
+    docker_sd_configs:
+      - host: "unix:///var/run/docker.sock"
+        refresh_interval: 5s
+    relabel_configs:
+      - source_labels: ["__meta_docker_container_name"]
+        target_label: "container"
+        regex: "/?(.*)"
+      - source_labels: ["__meta_docker_container_id"]
+        target_label: "container_id"
     pipeline_stages:
       - docker: {}
